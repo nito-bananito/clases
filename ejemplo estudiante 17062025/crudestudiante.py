@@ -1,7 +1,38 @@
 import os
+import pwinput
 #Se importa el módulo para usar la función: os.path.exist(ruta)
 ARCHIVO="estudiantes.txt"
+archivo_usuarios="estudiantes.txt"
 
+def agregar_usuario(usuario, clave):
+    with open("usuarios.txt", "a") as archivo:
+        archivo.write(f"{usuario},{clave}\n")
+        
+# ejemplo de uso
+agregar_usuario("admin","admin123")
+agregar_usuario("juan", "clave456")
+
+def cargar_usuarios():
+    usuarios={}
+    if os.path.exists("usuarios.txt"):
+        with open("usuarios.txt", "r") as archivo:
+            for linea in archivo:
+                usuario, clave=linea.strip().split(",")
+                usuarios[usuario]=clave
+    return usuarios
+
+def inicio():
+    print(" INICIO DE SESIÓN")
+    usuarios=cargar_usuarios()
+    usuario=input("Usuario: ")
+    clave_ingresada=pwinput.pwinput(prompt= "Contraseña: ", mask="*")
+    if usuario in usuarios and usuarios[usuario]==clave_ingresada:
+        print(" Acceso permitido\n")
+        return True
+    else:
+        print(" Usuario o contraseña incorrectos.\n")
+        return False
+    
 
 def cargar_estudiantes():
     estudiantes=[]
@@ -69,7 +100,7 @@ def actualizar_estudiante(estudiantes):
            guardar_estudiantes(estudiantes)
            print("Estudiantes actualizadi.\n")
            return
-print("No se encontro estudiante con ese codigo.\n")
+
 
 def eliminar_estudiante(estudiantes):
     codigo=input("Ingresa el codigo del estudiante a eliminar: ")
@@ -79,7 +110,7 @@ def eliminar_estudiante(estudiantes):
             guardar_estudiantes(estudiantes)
             print("Estudiante eliminado.\n")
             return
-    print("No se encontro estudiante con ese codigo.\n")
+
     
 #Funcion menu principal
 def menu():
@@ -109,4 +140,15 @@ def menu():
   
             
 #Instruccion para ejecutar el menu
-menu()
+intentos=0
+while intentos<3:
+    if inicio():
+        menu()
+        break
+    else:
+        intentos +=1
+        if intentos<3:
+            print("Contraseña incorrecta, te quedan", 3-intentos, "intento.")
+        else:
+            print("Acceso bloqueado. Te has quedado sin intentos.")
+            
